@@ -4,7 +4,7 @@ from database import init_db, get_db
 from models import get_stats_jugadores, get_minutos_partido
 import hashlib
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.secret_key = 'clave_secreta_control_minutos_2025'
 
 login_manager = LoginManager()
