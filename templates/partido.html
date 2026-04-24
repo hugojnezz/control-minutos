@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Registrar Partido</h1>
+<p>{{ equipo.club }} — {{ equipo.categoria|capitalize }} {{ equipo.letra }}</p>
+<p>Máximo de minutos por jugador: <strong>{{ mins_partido }}</strong></p>
+<form method="POST">
+  <label>Rival:
+    <input type="text" name="rival" required>
+  </label>
+  <label>Fecha:
+    <input type="date" name="fecha" required>
+  </label>
+  <h3>Minutos por jugador</h3>
+  {% for j in jugadores %}
+  <label>{{ j.nombre }}:
+    <input type="number" name="mins_{{ j.id }}" min="0" max="{{ mins_partido }}" value="0">
+  </label>
+  {% endfor %}
+  <button type="submit">Guardar Partido</button>
+</form>
+{% endblock %}

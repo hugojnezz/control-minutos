@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Mis Equipos</h1>
+{% for eq in equipos %}
+  <a class="equipo-card" href="/equipo/{{ eq.id }}">
+    {{ eq.club }} — {{ eq.categoria|capitalize }} {{ eq.letra }}
+  </a>
+{% else %}
+  <p>No tienes equipos todavía. Crea uno nuevo.</p>
+{% endfor %}
+{% endblock %}

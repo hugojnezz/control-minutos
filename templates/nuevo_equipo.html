@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Nuevo Equipo</h1>
+<form method="POST">
+  <label>Club:
+    <input type="text" name="club" required>
+  </label>
+  <label>Categoría:
+    <select name="categoria">
+      {% for cat in categorias %}
+        <option value="{{ cat }}">{{ cat|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Letra del equipo:
+    <input type="text" name="letra" maxlength="1" required>
+  </label>
+  <button type="submit">Crear Equipo</button>
+</form>
+{% endblock %}

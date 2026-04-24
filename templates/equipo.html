@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{ equipo.club }} — {{ equipo.categoria|capitalize }} {{ equipo.letra }}</h1>
+<p>Partidos jugados: <strong>{{ num_partidos }}</strong> | Minutos por partido: <strong>{{ mins_partido }}</strong></p>
+
+<h2>Estadísticas de Jugadores</h2>
+<table>
+  <tr>
+    <th>Jugador</th>
+    <th>Min. jugados</th>
+    <th>Min. posibles</th>
+    <th>%</th>
+  </tr>
+  {% for s in stats %}
+  <tr>
+    <td>{{ s.nombre }}</td>
+    <td>{{ s.minutos_totales }}</td>
+    <td>{{ s.minutos_posibles }}</td>
+    <td>{{ s.porcentaje }}%</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Añadir Jugador</h2>
+<form method="POST" action="/equipo/{{ equipo.id }}/jugador/nuevo">
+  <label>Nombre:
+    <input type="text" name="nombre" placeholder="Nombre del jugador" required>
+  </label>
+  <button type="submit">Añadir</button>
+</form>
+
+<h2>Partidos</h2>
+<a href="/equipo/{{ equipo.id }}/partido/nuevo">+ Registrar nuevo partido</a>
+<br><br>
+{% for partido in partidos %}
+  <p>{{ partido.fecha }} vs <strong>{{ partido.rival }}</strong></p>
+{% else %}
+  <p>Aún no hay partidos registrados.</p>
+{% endfor %}
+{% endblock %}

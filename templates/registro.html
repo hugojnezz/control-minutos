@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Crear cuenta</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for msg in messages %}
+      <p class="aviso">{{ msg }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<form method="POST">
+  <label>Nombre:
+    <input type="text" name="nombre" required>
+  </label>
+  <label>Email:
+    <input type="email" name="email" required>
+  </label>
+  <label>Contraseña:
+    <input type="password" name="password" required>
+  </label>
+  <button type="submit">Crear cuenta</button>
+</form>
+<p>¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+{% endblock %}
