@@ -1,23 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Minutos</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión de equipos{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav>
-    <a href="/">Mis Equipos</a>
-    <a href="/equipo/nuevo">Nuevo Equipo</a>
-    {% if current_user.is_authenticated %}
-      <span class="nav-usuario">{{ current_user.nombre }}</span>
-      <a href="/logout">Cerrar sesión</a>
-    {% endif %}
-  </nav>
-  <main>
-    {% block content %}{% endblock %}
-  </main>
-  <script src="/static/app.js"></script>
+    <nav>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Inicio</a>
+            {% if session.get('usuario_id') %}
+                <a href="{{ url_for('nuevo_equipo') }}">Nuevo equipo</a>
+            {% endif %}
+        </div>
+
+        <div class="nav-links">
+            {% if session.get('usuario_id') %}
+                <span class="nav-usuario">{{ session.get('usuario_nombre', 'Usuario') }}</span>
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('registro') }}">Registro</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

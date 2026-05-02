@@ -1,11 +1,57 @@
 {% extends 'base.html' %}
+
+{% block title %}Mis equipos{% endblock %}
+
 {% block content %}
-<h1>Mis Equipos</h1>
-{% for eq in equipos %}
-  <a class="equipo-card" href="/equipo/{{ eq.id }}">
-    {{ eq.club }} — {{ eq.categoria|capitalize }} {{ eq.letra }}
-  </a>
-{% else %}
-  <p>No tienes equipos todavía. Crea uno nuevo.</p>
-{% endfor %}
+<section class="hero">
+    <h1>Mis equipos</h1>
+    <p>Gestiona tus plantillas, registra partidos y controla los minutos de juego de forma más clara.</p>
+</section>
+
+<div class="stats">
+    <div class="stat">
+        <strong>{{ equipos|length }}</strong>
+        <span>Equipos registrados</span>
+    </div>
+    <div class="stat">
+        <strong>Control</strong>
+        <span>Seguimiento de minutos por jugador</span>
+    </div>
+    <div class="stat">
+        <strong>Rápido</strong>
+        <span>Acceso directo a cada equipo</span>
+    </div>
+</div>
+
+<section class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+        <div>
+            <h2>Tus equipos</h2>
+            <p>Selecciona un equipo para ver estadísticas, jugadores y partidos.</p>
+        </div>
+        <a class="btn" href="{{ url_for('nuevo_equipo') }}">+ Nuevo equipo</a>
+    </div>
+
+    {% if equipos %}
+        {% for equipo in equipos %}
+            <a class="equipo-card" href="{{ url_for('equipo', equipo_id=equipo.id) }}">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <div>
+                        <div style="font-size:1.1rem; margin-bottom:4px;">{{ equipo.club }}</div>
+                        <div style="color:#607089; font-weight:500;">
+                            {{ equipo.categoria|capitalize }} {{ equipo.letra }}
+                        </div>
+                    </div>
+                    <div style="color:#1d4ed8; font-weight:700;">Ver detalle →</div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <div class="panel">
+            <h3>Aún no tienes equipos</h3>
+            <p>Crea tu primer equipo para empezar a registrar jugadores, partidos y minutos.</p>
+            <a class="btn" href="{{ url_for('nuevo_equipo') }}">Crear primer equipo</a>
+        </div>
+    {% endif %}
+</section>
 {% endblock %}

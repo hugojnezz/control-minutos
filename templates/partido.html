@@ -1,21 +1,66 @@
 {% extends 'base.html' %}
+
+{% block title %}Nuevo partido{% endblock %}
+
 {% block content %}
-<h1>Registrar Partido</h1>
-<p>{{ equipo.club }} — {{ equipo.categoria|capitalize }} {{ equipo.letra }}</p>
-<p>Máximo de minutos por jugador: <strong>{{ mins_partido }}</strong></p>
-<form method="POST">
-  <label>Rival:
-    <input type="text" name="rival" required>
-  </label>
-  <label>Fecha:
-    <input type="date" name="fecha" required>
-  </label>
-  <h3>Minutos por jugador</h3>
-  {% for j in jugadores %}
-  <label>{{ j.nombre }}:
-    <input type="number" name="mins_{{ j.id }}" min="0" max="{{ mins_partido }}" value="0">
-  </label>
-  {% endfor %}
-  <button type="submit">Guardar Partido</button>
-</form>
+<section class="hero">
+    <h1>Registrar partido</h1>
+    <p>{{ equipo.club }} — {{ equipo.categoria|capitalize }} {{ equipo.letra }}</p>
+</section>
+
+<div class="stats">
+    <div class="stat">
+        <strong>{{ jugadores|length }}</strong>
+        <span>Jugadores disponibles</span>
+    </div>
+    <div class="stat">
+        <strong>{{ mins_partido }}</strong>
+        <span>Minutos máximos por jugador</span>
+    </div>
+</div>
+
+<section class="panel">
+    <h2>Datos del partido</h2>
+    <p>Completa la información general y asigna los minutos jugados a cada futbolista.</p>
+
+    <form method="post">
+        <label>
+            Rival
+            <input type="text" name="rival" required placeholder="Ej. Atlético Móstoles">
+        </label>
+
+        <label>
+            Fecha
+            <input type="date" name="fecha" required>
+        </label>
+
+        <h2 style="margin-top:10px;">Minutos por jugador</h2>
+
+        {% if jugadores %}
+            <div style="display:grid; gap:14px; margin-top:8px;">
+                {% for jugador in jugadores %}
+                    <div class="card">
+                        <label style="margin-bottom:0;">
+                            <span style="display:block; margin-bottom:8px;">{{ jugador.nombre }}</span>
+                            <input
+                                type="number"
+                                name="mins_{{ jugador.id }}"
+                                min="0"
+                                max="{{ mins_partido }}"
+                                value="0"
+                                required
+                            >
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="aviso">No hay jugadores en este equipo. Añade al menos uno antes de registrar un partido.</div>
+        {% endif %}
+
+        <div style="margin-top:20px;">
+            <button type="submit">Guardar partido</button>
+        </div>
+    </form>
+</section>
 {% endblock %}

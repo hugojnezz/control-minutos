@@ -1,40 +1,104 @@
 {% extends 'base.html' %}
+
+{% block title %}{{ equipo.club }}{% endblock %}
+
 {% block content %}
-<h1>{{ equipo.club }} — {{ equipo.categoria|capitalize }} {{ equipo.letra }}</h1>
-<p>Partidos jugados: <strong>{{ num_partidos }}</strong> | Minutos por partido: <strong>{{ mins_partido }}</strong></p>
+<section class="hero">
+    <h1>{{ equipo.club }}</h1>
+    <p>{{ equipo.categoria|capitalize }} {{ equipo.letra }}</p>
+</section>
 
-<h2>Estadísticas de Jugadores</h2>
-<table>
-  <tr>
-    <th>Jugador</th>
-    <th>Min. jugados</th>
-    <th>Min. posibles</th>
-    <th>%</th>
-  </tr>
-  {% for s in stats %}
-  <tr>
-    <td>{{ s.nombre }}</td>
-    <td>{{ s.minutos_totales }}</td>
-    <td>{{ s.minutos_posibles }}</td>
-    <td>{{ s.porcentaje }}%</td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="stats">
+    <div class="stat">
+        <strong>{{ num_partidos }}</strong>
+        <span>Partidos jugados</span>
+    </div>
+    <div class="stat">
+        <strong>{{ mins_partido }}</strong>
+        <span>Minutos por partido</span>
+    </div>
+    <div class="stat">
+        <strong>{{ stats|length }}</strong>
+        <span>Jugadores registrados</span>
+    </div>
+</div>
 
-<h2>Añadir Jugador</h2>
-<form method="POST" action="/equipo/{{ equipo.id }}/jugador/nuevo">
-  <label>Nombre:
-    <input type="text" name="nombre" placeholder="Nombre del jugador" required>
-  </label>
-  <button type="submit">Añadir</button>
-</form>
+<section class="panel" style="margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+        <div>
+            <h2>Jugadores</h2>
+            <p>Resumen acumulado de participación y porcentaje de minutos.</p>
+        </div>
+    </div>
 
-<h2>Partidos</h2>
-<a href="/equipo/{{ equipo.id }}/partido/nuevo">+ Registrar nuevo partido</a>
-<br><br>
-{% for partido in partidos %}
-  <p>{{ partido.fecha }} vs <strong>{{ partido.rival }}</strong></p>
-{% else %}
-  <p>Aún no hay partidos registrados.</p>
-{% endfor %}
+    {% if stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Jugador</th>
+                    <th>Min. jugados</th>
+                    <th>Min. posibles</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in stats %}
+                <tr>
+                    <td><strong>{{ s.nombre }}</strong></td>
+                    <td>{{ s.minutos_totales }}</td>
+                    <td>{{ s.minutos_posibles }}</td>
+                    <td>{{ s.porcentaje }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="aviso">Todavía no hay jugadores registrados en este equipo.</div>
+    {% endif %}
+</section>
+
+<section class="panel" style="margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+        <div>
+            <h2>Añadir jugador</h2>
+            <p>Introduce el nombre del jugador para incorporarlo al equipo.</p>
+        </div>
+    </div>
+
+    <form method="post" action="{{ url_for('nuevo_jugador', equipo_id=equipo.id) }}">
+        <label>
+            Nombre del jugador
+            <input type="text" name="nombre" required placeholder="Ej. Pablo García">
+        </label>
+        <button type="submit">Guardar jugador</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+        <div>
+            <h2>Partidos</h2>
+            <p>Consulta los partidos ya registrados o añade uno nuevo.</p>
+        </div>
+        <a class="btn" href="{{ url_for('nuevo_partido', equipo_id=equipo.id) }}">+ Registrar partido</a>
+    </div>
+
+    {% if partidos %}
+        <div style="display:grid; gap:14px;">
+            {% for partido in partidos %}
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <div>
+                            <h3 style="margin:0 0 6px;">vs {{ partido.rival }}</h3>
+                            <p style="margin:0;">{{ partido.fecha }}</p>
+                        </div>
+                        <div style="font-weight:700; color:#1d4ed8;">Registrado</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="aviso">Aún no hay partidos registrados.</div>
+    {% endif %}
+</section>
 {% endblock %}

@@ -1,20 +1,47 @@
 {% extends 'base.html' %}
+
+{% block title %}Nuevo equipo{% endblock %}
+
 {% block content %}
-<h1>Nuevo Equipo</h1>
-<form method="POST">
-  <label>Club:
-    <input type="text" name="club" required>
-  </label>
-  <label>Categoría:
-    <select name="categoria">
-      {% for cat in categorias %}
-        <option value="{{ cat }}">{{ cat|capitalize }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>Letra del equipo:
-    <input type="text" name="letra" maxlength="1" required>
-  </label>
-  <button type="submit">Crear Equipo</button>
-</form>
+<section class="hero">
+    <h1>Nuevo equipo</h1>
+    <p>Crea un equipo nuevo para registrar jugadores, partidos y minutos de participación.</p>
+</section>
+
+<div class="stats">
+    <div class="stat">
+        <strong>5</strong>
+        <span>Categorías disponibles</span>
+    </div>
+    <div class="stat">
+        <strong>1 min</strong>
+        <span>Configuración rápida</span>
+    </div>
+</div>
+
+<section class="panel" style="max-width: 760px;">
+    <form method="post">
+        <label>
+            Club
+            <input type="text" name="club" required placeholder="Ej. CD Móstoles">
+        </label>
+
+        <label>
+            Categoría
+            <select name="categoria" required>
+                <option value="">Selecciona una categoría</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria }}">{{ categoria|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Letra / grupo
+            <input type="text" name="letra" required placeholder="Ej. A">
+        </label>
+
+        <button type="submit">Guardar equipo</button>
+    </form>
+</section>
 {% endblock %}
