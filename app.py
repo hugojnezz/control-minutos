@@ -7,6 +7,8 @@ import hashlib
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'clave_secreta_control_minutos_2025'
 
+init_db()
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -54,24 +56,20 @@ def index():
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        nombre = request.form['nombre'].strip()
-        email = request.form['email'].strip().lower()
-        password = request.form['password']
-
-        if not nombre or not email or not password:
-            flash('Todos los campos son obligatorios.')
-            return render_template('registro.html')
+        nombre = request.form['nombre']
+        email = request.form['email']
+        password = hash_password(request.form['password'])
 
         conn = get_db()
         try:
             conn.execute(
                 'INSERT INTO usuarios (nombre, email, password) VALUES (?,?,?)',
-                (nombre, email, hash_password(password))
+                (nombre, email, password)
             )
             conn.commit()
             flash('Cuenta creada correctamente. Ya puedes iniciar sesión.')
             return redirect(url_for('login'))
-        except Exception:
+        except:
             flash('Ese email ya está registrado.')
         finally:
             conn.close()
@@ -82,7 +80,7 @@ def registro():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email'].strip().lower()
+        email = request.form['email']
         password = hash_password(request.form['password'])
 
         conn = get_db()
@@ -95,7 +93,6 @@ def login():
         if u:
             usuario = Usuario(u['id'], u['nombre'], u['email'])
             login_user(usuario)
-            flash('Bienvenido, {}'.format(u['nombre']))
             return redirect(url_for('index'))
         else:
             flash('Email o contraseña incorrectos.')
@@ -114,13 +111,9 @@ def logout():
 @login_required
 def nuevo_equipo():
     if request.method == 'POST':
-        club = request.form['club'].strip()
+        club = request.form['club']
         categoria = request.form['categoria']
-        letra = request.form['letra'].strip()
-
-        if not club or not categoria or not letra:
-            flash('Debes completar todos los campos del equipo.')
-            return render_template('nuevo_equipo.html', categorias=CATEGORIAS)
+        letra = request.form['letra']
 
         conn = get_db()
         conn.execute(
@@ -130,7 +123,6 @@ def nuevo_equipo():
         conn.commit()
         conn.close()
 
-        flash('Equipo creado correctamente.')
         return redirect(url_for('index'))
 
     return render_template('nuevo_equipo.html', categorias=CATEGORIAS)
@@ -140,7 +132,6 @@ def nuevo_equipo():
 @login_required
 def equipo(equipo_id):
     conn = get_db()
-
     eq = conn.execute(
         'SELECT * FROM equipos WHERE id=? AND usuario_id=?',
         (equipo_id, current_user.id)
@@ -148,14 +139,12 @@ def equipo(equipo_id):
 
     if not eq:
         conn.close()
-        flash('Equipo no encontrado.')
         return redirect(url_for('index'))
 
     partidos = conn.execute(
         'SELECT * FROM partidos WHERE equipo_id=? ORDER BY fecha DESC',
         (equipo_id,)
     ).fetchall()
-
     conn.close()
 
     stats, num_partidos, mins_partido = get_stats_jugadores(equipo_id)
@@ -173,24 +162,9 @@ def equipo(equipo_id):
 @app.route('/equipo/<int:equipo_id>/jugador/nuevo', methods=['POST'])
 @login_required
 def nuevo_jugador(equipo_id):
-    nombre = request.form['nombre'].strip()
+    nombre = request.form['nombre']
 
     conn = get_db()
-    eq = conn.execute(
-        'SELECT * FROM equipos WHERE id=? AND usuario_id=?',
-        (equipo_id, current_user.id)
-    ).fetchone()
-
-    if not eq:
-        conn.close()
-        flash('Equipo no encontrado.')
-        return redirect(url_for('index'))
-
-    if not nombre:
-        conn.close()
-        flash('El nombre del jugador es obligatorio.')
-        return redirect(url_for('equipo', equipo_id=equipo_id))
-
     conn.execute(
         'INSERT INTO jugadores (equipo_id, nombre) VALUES (?,?)',
         (equipo_id, nombre)
@@ -198,7 +172,6 @@ def nuevo_jugador(equipo_id):
     conn.commit()
     conn.close()
 
-    flash('Jugador añadido correctamente.')
     return redirect(url_for('equipo', equipo_id=equipo_id))
 
 
@@ -214,7 +187,6 @@ def nuevo_partido(equipo_id):
 
     if not eq:
         conn.close()
-        flash('Equipo no encontrado.')
         return redirect(url_for('index'))
 
     jugadores = conn.execute(
@@ -223,14 +195,8 @@ def nuevo_partido(equipo_id):
     ).fetchall()
 
     if request.method == 'POST':
-        rival = request.form['rival'].strip()
+        rival = request.form['rival']
         fecha = request.form['fecha']
-        mins_partido = get_minutos_partido(eq['categoria'])
-
-        if not rival or not fecha:
-            conn.close()
-            flash('Debes completar rival y fecha.')
-            return redirect(url_for('nuevo_partido', equipo_id=equipo_id))
 
         cur = conn.execute(
             'INSERT INTO partidos (equipo_id, rival, fecha) VALUES (?,?,?)',
@@ -240,12 +206,6 @@ def nuevo_partido(equipo_id):
 
         for j in jugadores:
             mins = int(request.form.get(f'mins_{j["id"]}', 0))
-
-            if mins < 0:
-                mins = 0
-            if mins > mins_partido:
-                mins = mins_partido
-
             conn.execute(
                 'INSERT INTO minutos (partido_id, jugador_id, minutos) VALUES (?,?,?)',
                 (partido_id, j['id'], mins)
@@ -253,8 +213,6 @@ def nuevo_partido(equipo_id):
 
         conn.commit()
         conn.close()
-
-        flash('Partido registrado correctamente.')
         return redirect(url_for('equipo', equipo_id=equipo_id))
 
     conn.close()
@@ -269,5 +227,4 @@ def nuevo_partido(equipo_id):
 
 
 if __name__ == '__main__':
-    init_db()
     app.run(host='0.0.0.0', debug=True)
